@@ -768,7 +768,13 @@
             flex-shrink: 0; border-top: 1px solid var(--c-line); text-decoration: none;
         }
         .q-powered-footer span { font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--c-muted); }
-        .q-quantic-logo { height: 20px; opacity: 0.7; }
+        #q-modal-ia .q-powered-footer img.q-quantic-logo {
+            width: 103px !important; height: 18px !important;
+            max-width: 103px !important; max-height: 18px !important;
+            min-width: 0 !important; min-height: 0 !important;
+            flex: 0 0 103px !important; object-fit: contain !important;
+            margin: 0 !important; opacity: 0.7;
+        }
     `;
 
 
