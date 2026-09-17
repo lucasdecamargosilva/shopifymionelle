@@ -249,7 +249,7 @@
         /* ── Trigger (selo sobre foto) ── */
         @keyframes q-shake { 0%,50%,100%{transform:rotate(0deg)} 10%,30%{transform:rotate(-10deg)} 20%,40%{transform:rotate(10deg)} }
         .q-btn-trigger-ia {
-            position: fixed !important; z-index: 99 !important;
+            position: absolute !important; z-index: 2 !important;
             background: none !important; border: none !important; padding: 0 !important; cursor: pointer !important;
             width: 70px !important; height: 70px !important;
             display: flex !important; align-items: center !important; justify-content: center !important;
@@ -961,7 +961,7 @@
 
         const imgContainers = ['.product-images', '.product-image-section', '.product-photo', '.gallery-main', '.product-gallery__main', '.product-gallery', '.product-gallery img', '.product-image img', '.product-image-column', '.product-image-main', '[data-component="product.gallery"]', '[data-component="product-images"]', '.swiper-container .swiper-slide-active', '.swiper-slide-active', '.js-product-slide', '.js-swiper-product', '[data-store^="product-image-"]', '.product__media-wrapper', '.product-gallery__media', '.product__media', '.product-media-container', '[data-media-id]', '.product__media-item', '.product-single__media', '.media-gallery'];
 
-        // Ancora na viewport: rolar a galeria não deve deslocar o selo.
+        // O selo pertence à foto: acompanha a imagem, nunca flutua sobre a página.
         document.body.appendChild(openBtn);
         let trackedImgEl = null;
 
@@ -992,13 +992,12 @@
                 return false;
             }
             trackedImgEl = target;
-            const rect = target.getBoundingClientRect();
-            const btnSize = 70;
-            const margin = 14;
-            const offsetTop = 30;
-            // Posiciona no canto superior direito da imagem (um pouco mais pra baixo)
-            openBtn.style.top = Math.max(margin, Math.min(rect.top + window.scrollY + margin + offsetTop, window.innerHeight - btnSize - margin)) + 'px';
-            openBtn.style.left = Math.max(margin, Math.min(rect.right - btnSize - margin, window.innerWidth - btnSize - margin)) + 'px';
+            const host = target.tagName === 'IMG' ? target.parentElement : target;
+            if (window.getComputedStyle(host).position === 'static') host.style.position = 'relative';
+            if (openBtn.parentElement !== host) host.appendChild(openBtn);
+            openBtn.style.top = '44px';
+            openBtn.style.right = '14px';
+            openBtn.style.left = 'auto';
             openBtn.style.visibility = 'visible';
             return true;
         }
@@ -1007,7 +1006,7 @@
             return updateTriggerPosition();
         }
 
-        // Recalcula apenas ao mudar o tamanho da tela, nunca durante o scroll.
+        // Reavalia a galeria em mudanças de layout; a posição é relativa à foto.
         window.addEventListener('resize', updateTriggerPosition);
 
         if (!tryPlaceTriggerBtn()) {
@@ -1020,9 +1019,7 @@
 
             setTimeout(() => {
                 observer.disconnect();
-                if (openBtn.style.visibility !== 'visible') {
-                    openBtn.style.cssText = 'position:fixed;bottom:30px;right:20px;top:auto;visibility:visible;z-index:100;';
-                }
+                // Sem foto identificada, mantém apenas o botão acima do Comprar.
             }, 5000);
         }
 
@@ -1059,10 +1056,13 @@
         function syncInlineButtonShape() {
             if (!nativeBuyButton || !nativeBuyButton.isConnected) return;
             const nativeStyle = window.getComputedStyle(nativeBuyButton);
-            ['border-radius', 'height', 'min-height', 'padding', 'font-family',
+            ['border-radius', 'padding', 'font-family',
                 'font-size', 'font-weight', 'line-height', 'letter-spacing', 'text-transform'].forEach(function (property) {
                 inlineBtn.style.setProperty(property, nativeStyle.getPropertyValue(property), 'important');
             });
+            const compactHeight = Math.max(44, Math.round(nativeBuyButton.getBoundingClientRect().height * 0.8));
+            inlineBtn.style.setProperty('height', compactHeight + 'px', 'important');
+            inlineBtn.style.setProperty('min-height', '0', 'important');
             inlineBtn.style.setProperty('width', '100%', 'important');
             inlineBtn.style.setProperty('margin-bottom', '8px', 'important');
         }
