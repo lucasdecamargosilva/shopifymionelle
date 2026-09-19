@@ -107,45 +107,21 @@
     async function buyNow() {
         if (buyInProgress) return;
         var sb = findStoreBuyBtn();
-        var form = sb && sb.closest('form[action*="/cart/add"]');
-        var button = document.getElementById('q-btn-buy-now');
-        var cartRoot = (window.Shopify && window.Shopify.routes && window.Shopify.routes.root) || '/';
-        if (form) {
-            if (sb.disabled || sb.getAttribute('aria-disabled') === 'true' || !form.reportValidity()) return;
-            buyInProgress = true;
-            var originalLabel = button.textContent;
-            button.disabled = true;
-            button.textContent = 'Adicionando...';
-            try {
-                var response = await fetch(cartRoot + 'cart/add.js', {
-                    method: 'POST', credentials: 'same-origin',
-                    headers: { 'Accept': 'application/json' }, body: new FormData(form)
-                });
-                var result = await response.json();
-                if (!response.ok || result.status >= 400) throw new Error(result.description || 'Não foi possível adicionar o produto. Tente novamente.');
-            } catch (error) {
-                buyInProgress = false;
-                button.disabled = false;
-                button.textContent = originalLabel;
-                window.alert(error.message || 'Não foi possível adicionar o produto. Tente novamente.');
-                return;
-            }
-        }
+        if (!sb) return;
+        buyInProgress = true;
+        setTimeout(function () { buyInProgress = false; }, 2000); // libera pra reabrir/tentar de novo
+        // Tracking (marca carrinho_adicionado por telefone).
         try {
             var _tp = (document.getElementById('q-phone') || {}).value || '';
             var _td = (document.querySelector('h1.product-detail-info-name, h1') || {}).innerText || document.title || '';
             fetch(WEBHOOK_BUY_CLICK, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: _tp, origin: location.origin, produto: _td }) }).catch(function () {});
         } catch (e) {}
-        // Mesmo comportamento do botão "Comprar" da página: só ADICIONA ao carrinho,
-        // sem ir pro checkout nem trocar de página. Se veio pela AJAX (form), o produto
-        // já foi adicionado acima — não clica no botão nativo de novo (evita item em dobro).
-        // Sem form estruturado, aciona o botão nativo da loja (que também só adiciona).
-        if (sb && !form) { try { sb.click(); } catch (e) {} }
-        // Feedback dentro do provador (a confirmação da loja fica atrás do modal).
-        var _b = document.getElementById('q-btn-buy-now'); if (_b) _b.style.display = 'none';
-        var _s = document.getElementById('q-buy-success'); if (_s) _s.style.display = 'flex';
-        var _cart = document.getElementById('q-btn-go-cart');
-        if (_cart) _cart.href = document.querySelector('form[action*="/cart/add"]') ? '/cart' : '/carrinho';
+        // Comportamento pedido: FECHA o provador e CLICA no botão de comprar da própria loja.
+        // É o clique nativo que adiciona o produto e abre o carrinho lateral do tema — o
+        // add via AJAX só adicionava por baixo, sem abrir o carrinho.
+        try { var _wm = document.getElementById('q-modal-ia'); if (_wm) _wm.style.display = 'none'; } catch (e) {}
+        try { document.body.style.overflow = ''; } catch (e) {}
+        try { sb.click(); } catch (e) {}
     }
     // Mostra o botão no resultado + preenche o preço.
     // Parcelamento (Dooca): plano de cartão do produto (fallback: texto da página).
