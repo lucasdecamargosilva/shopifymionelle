@@ -136,11 +136,11 @@
             var _td = (document.querySelector('h1.product-detail-info-name, h1') || {}).innerText || document.title || '';
             fetch(WEBHOOK_BUY_CLICK, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: _tp, origin: location.origin, produto: _td }) }).catch(function () {});
         } catch (e) {}
-        if (form) {
-            window.location.assign(cartRoot + 'cart');
-            return;
-        }
-        if (sb) { try { sb.click(); } catch (e) {} }
+        // Mesmo comportamento do botão "Comprar" da página: só ADICIONA ao carrinho,
+        // sem ir pro checkout nem trocar de página. Se veio pela AJAX (form), o produto
+        // já foi adicionado acima — não clica no botão nativo de novo (evita item em dobro).
+        // Sem form estruturado, aciona o botão nativo da loja (que também só adiciona).
+        if (sb && !form) { try { sb.click(); } catch (e) {} }
         // Feedback dentro do provador (a confirmação da loja fica atrás do modal).
         var _b = document.getElementById('q-btn-buy-now'); if (_b) _b.style.display = 'none';
         var _s = document.getElementById('q-buy-success'); if (_s) _s.style.display = 'flex';
