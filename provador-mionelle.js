@@ -834,7 +834,7 @@
                     <!-- PIX -->
                     <div id="q-step-pix">
                         <h2>Prova Extra</h2>
-                        <p class="q-pix-subtitle">Limite de 3 provas atingido.<br>Pague R$1 via PIX para mais uma:</p>
+                        <p class="q-pix-subtitle">Limite de provas de hoje atingido.<br>Pague R$1 via PIX para mais uma:</p>
                         <p style="font-size: 11px; color: var(--c-muted); margin: 8px 0 0; line-height: 1.5; text-align: center;">&#8505;&#65039; Cobran&#231;a feita pela Provou Levou, n&#227;o pela loja</p>
                         <div class="q-pix-qr"><img id="q-pix-qr-img" alt="QR Code PIX"></div>
                         <div class="q-pix-copiacola">
@@ -1592,7 +1592,7 @@
                     const _txt = restantes + (restantes === 1 ? ' prova restante hoje' : ' provas restantes hoje');
                     _els.forEach(el => { el.textContent = _txt; el.classList.remove('is-warn'); });
                 } else {
-                    _els.forEach(el => { el.textContent = 'Limite de 3 provas atingido. Volte amanhã.'; el.classList.add('is-warn'); });
+                    _els.forEach(el => { el.textContent = 'Limite de provas de hoje atingido. Volte amanhã.'; el.classList.add('is-warn'); });
                 }
             } catch(_) { _els.forEach(el => { el.textContent = ''; el.classList.remove('is-warn'); }); }
         }
@@ -1955,7 +1955,7 @@ const fd = new FormData();
                     const data = await res.json();
                     if (data.limited || data.error === 'limite_diario') {
                         try { document.getElementById('q-loading-box').style.display = 'none'; } catch (_) {}
-                        alert('Você atingiu o limite de 3 provas hoje. Volte amanhã.'); try { uploadStep.style.display = 'flex'; genBtn.disabled = false; } catch (_) {}
+                        alert('Você atingiu o limite de provas de hoje. Volte amanhã.'); try { uploadStep.style.display = 'flex'; genBtn.disabled = false; } catch (_) {}
                         return;
                     }
                     if (data.error) {
@@ -2031,7 +2031,7 @@ const fd = new FormData();
                 if (data.limited) {
             try { document.getElementById('q-loading-box').style.display = 'none'; } catch (_) {}
                     genBtn.disabled = false;
-                    alert('Você atingiu o limite de 3 provas hoje. Volte amanhã.'); try { uploadStep.style.display = 'flex'; genBtn.disabled = false; } catch (_) {}
+                    alert('Você atingiu o limite de provas de hoje. Volte amanhã.'); try { uploadStep.style.display = 'flex'; genBtn.disabled = false; } catch (_) {}
                     return;
                 }
             } catch (_) {
